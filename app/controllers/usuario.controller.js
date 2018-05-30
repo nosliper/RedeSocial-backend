@@ -1,15 +1,31 @@
 let Usuario = require('../models/usuario.model');
 let Post = require('../models/post.model');
+let bcrypt = require('bcrypt');
 
 let successCallback = function(res, status = 200) {
     return function(body) {
-        res.status(status).json(body);
+        let ret = [];
+        if(body instanceof Array) {
+            for(let i in body) {
+                ret.push({
+                    nome: body[i].nome,
+                    email: body[i].email
+                });
+            }
+        }
+        else {
+            ret = body && {
+                nome: body.nome,
+                email: body.email
+            } || undefined;
+        }
+        res.status(status).json(ret);
     }
 }
 
 let errorCallback = function(res, msg = undefined, status = 500) {
     return function(error) {
-        res.status(status).send((msg && msg + ": " || "") + error);
+        res.status(status).send((msg && msg || error));
     }
 }
 
@@ -31,7 +47,14 @@ module.exports.getUsuarioById = function(req, res) {
 }
 
 module.exports.insertUsuario = function(req, res) {
-    let promise = Usuario.create(req.body);
+    let usuario = new Usuario(
+        {
+            nome: req.body.nome,
+            email: req.body.email,
+            senha: bcrypt.hashSync(req.body.senha, 10)
+        } 
+    );
+    let promise = Usuario.create(usuario);
     promise.then(successCallback(res, 201))
     .catch(errorCallback(res));
 }
