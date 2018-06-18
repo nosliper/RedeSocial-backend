@@ -9,7 +9,7 @@ module.exports.signin = function(req, res) {
         function(usuario) {
             if(bcrypt.compareSync(req.body.senha, usuario.senha)) {
                 let token = jwt.sign({id: usuario._id}, SECRET_KEY);
-                res.status(200).json(token);
+                res.status(200).json({token: token});
             }
             else {
                 res.status(401).send("Invalid login");

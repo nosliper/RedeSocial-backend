@@ -12,9 +12,17 @@ module.exports = function() {
     app.use(parser.json());
     app.use(parser.urlencoded({extended: false}));
     
+    app.options('/api/*', function(req, res, next) {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+        res.sendStatus(200);
+        next();
+    });
+    
     usuarioRoute(app);
     postRoute(app);
-
+    
     app.get('*', function(req, res) {
         res.sendFile(path.join(__dirname, '../public/index.html'));
     });
